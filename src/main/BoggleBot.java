@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 /**
- * @author DanielMerken
+ * @author Daniel Merken <dcm58@uw.edu>
  */
 public class BoggleBot {
 	private static final ForkJoinPool POOL = new ForkJoinPool();
@@ -61,10 +61,12 @@ public class BoggleBot {
 							prefix + board.get(p)));
 				}
 			}
-			for (int i = 0; i < threads.size() - 1; i++) {
-				threads.get(i).fork();
+			if (!threads.isEmpty()) {
+				for (int i = 0; i < threads.size() - 1; i++) {
+					threads.get(i).fork();
+				}
+				threads.get(threads.size() - 1).compute();
 			}
-			threads.get(threads.size() - 1).compute();
 		}
 	}
 }
