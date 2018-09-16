@@ -3,19 +3,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
-
+/**
+ * @author DanielMerken
+ */
 public class BoggleBot {
 	private static final ForkJoinPool POOL = new ForkJoinPool();
 	
-	private Trie dictionary;
-	private BoggleBoard board;
-	
-	public BoggleBot(Trie dictionary, BoggleBoard board) {
-		this.dictionary = dictionary;
-		this.board = board;
-	}
-	
-	public void solveBoard() {
+	/**
+	 * Finds all words in the given dictionary that are contained in the
+	 * given boggle board and stores results in the supplied BoggleBoard
+	 * @param dictionary Contains a dictionary of which words to search for
+	 * @param board The board in which to search for words
+	 */
+	public static void solveBoard(Trie dictionary, BoggleBoard board) {
 		for (int i = 0; i < board.getWidth(); i++) {
 			for (int j = 0; j < board.getHeight(); j++) {
 				Point p = new Point(i, j);
@@ -50,37 +50,21 @@ public class BoggleBot {
 			if (dictionary.containsWord(prefix)) {
 				board.addSolution(currPath);
 			}
-			List<Point> adjPoints = getAdjPoints(Point p)
+			List<Point> adjPoints = board.getAdjPoints(lastPoint);
 			List<BoggleBotTask> threads = new ArrayList<BoggleBotTask>();
 			for (Point p : adjPoints) {
-				List<Point> nextPath = new ArrayList<Point>(currPath);
-				nextPath.add(p);
-				threads.add(new BoggleBotTask(dictionary, board, nextPath,
-						prefix + board.get(p)));
+				if (!currPath.contains(p) && 
+						dictionary.containsPrefix(prefix + board.get(p))) {
+					List<Point> nextPath = new ArrayList<Point>(currPath);
+					nextPath.add(p);
+					threads.add(new BoggleBotTask(dictionary, board, nextPath,
+							prefix + board.get(p)));
+				}
 			}
 			for (int i = 0; i < threads.size() - 1; i++) {
 				threads.get(i).fork();
 			}
 			threads.get(threads.size() - 1).compute();
-		}
-		
-		private List<Point> getAdjPoints(Point p) {
-			List<Point> adjPoints = new ArrayList<Point>();
-			Point adjPoint = new Point(lastPoint.getX() + 1, lastPoint.getY());
-			if (validSpace(adjPoint)) adjPoints.add(adjPoint);
-			adjPoint = new Point(lastPoint.getX() - 1, lastPoint.getY());
-			if (validSpace(adjPoint)) adjPoints.add(adjPoint);
-			adjPoint = new Point(lastPoint.getX(), lastPoint.getY() + 1);
-			if (validSpace(adjPoint)) adjPoints.add(adjPoint);
-			adjPoint = new Point(lastPoint.getX(), lastPoint.getY() - 1);
-			if (validSpace(adjPoint)) adjPoints.add(adjPoint);
-			return adjPoints;
-		}
-		
-		private boolean validSpace(Point p) {
-			return !currPath.contains(p) && p.getX() >= 0 && p.getY() >= 0 &&
-					p.getX() < board.getWidth() && p.getY() < board.getHeight()
-					&& dictionary.containsPrefix(prefix + board.get(p));
 		}
 	}
 }
