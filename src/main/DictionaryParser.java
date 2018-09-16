@@ -3,14 +3,11 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 /**
- * 
- * 
  * @author DanielMerken
- *
  */
 public class DictionaryParser {
 	
-	public static Trie parseDictionary(String filename) {
+	public static Trie parseDictionary(String filename, int minLength) {
 		BufferedReader reader = null;
 		Trie result = new Trie();
 		try {
@@ -18,7 +15,9 @@ public class DictionaryParser {
 			// Add one word at a time
 			String inputLine;
 			while ((inputLine = reader.readLine()) != null) {
-				result.insert(inputLine);
+				if (inputLine.length() >= minLength) {
+					result.insert(inputLine);
+				}
 			}
 		} catch (IOException e) {
 			System.err.println(e.toString());
