@@ -7,8 +7,8 @@ import java.util.Map;
  * representing whether or not the corresponding string is a valid word. 
  * Includes methods for inserting strings and checking if a given prefix/word
  * is a valid prefix/word in the Trie.
- * @author DanielMerken
- *
+ * 
+ * @author Daniel Merken <dcm58@uw.edu>
  */
 
 public class Trie {
@@ -16,16 +16,17 @@ public class Trie {
 	
 	/**
 	 * Class for a node representing a character or the root in a Trie. 
-	 * @author DanielMerken
-	 *
 	 */
 	public class TrieNode {
+		/*
+		 * Stores the children nodes of this node
+		 */
 		public Map<Character, TrieNode> children;
-		public boolean validWord; 
 		/* 
 		 * True iff the character this node represents the final character in
-		 * a string;
+		 * a string
 		 */
+		public boolean validWord; 
 		
 		/**
 		 * Constructs a new empty TrieNode
@@ -45,7 +46,7 @@ public class Trie {
 	
 	/**
 	 * Inserts the given string, word, into this Trie
-	 * @param word - the string to be inserted into the Trie
+	 * @param word The string to be inserted into the Trie
 	 */
 	public void insert(String word) {
 		word = word.toLowerCase();
@@ -62,7 +63,7 @@ public class Trie {
 	/**
 	 * Determines whether or not a given string, prefix, is the prefix to any
 	 * word contained in this Trie.
-	 * @param prefix
+	 * @param prefix The string to be checked in this Trie
 	 * @return True if the provided string is a prefix to any word in this Trie,
 	 * else returns false
 	 */
@@ -80,7 +81,7 @@ public class Trie {
 	
 	/**
 	 * Determines whether or not a given string, word, is contained in this Trie
-	 * @param word
+	 * @param word The string to be checked in this Trie
 	 * @return True if this word is in this Trie, else returns false
 	 */
 	public boolean containsWord(String word) {

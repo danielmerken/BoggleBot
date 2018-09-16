@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 /**
+ * Class that contains a parallelized method to solve a board. 
+ * 
  * @author Daniel Merken <dcm58@uw.edu>
  */
 public class BoggleBot {
@@ -12,6 +14,7 @@ public class BoggleBot {
 	/**
 	 * Finds all words in the given dictionary that are contained in the
 	 * given boggle board and stores results in the supplied BoggleBoard
+	 * 
 	 * @param dictionary Contains a dictionary of which words to search for
 	 * @param board The board in which to search for words
 	 */

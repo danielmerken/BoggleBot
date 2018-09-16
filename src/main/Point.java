@@ -1,5 +1,8 @@
 package main;
 /**
+ * A simple representation of a 2d point. Contains methods for getting the 
+ * x and y coordinate, as well as a hashing and equals function.
+ * 
  * @author Daniel Merken <dcm58@uw.edu>
  */
 public class Point {

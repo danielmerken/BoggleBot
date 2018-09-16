@@ -5,6 +5,11 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 /**
+ * Class representing a Boggle board and its solutions. Boards can be randomly
+ * generated or specified. Contains methods for adding and getting solutions,
+ * getting characters at certain points on the board, getting adjacent points
+ * on the board, and checking whether a point is contained within the board.
+ * 
  * @author Daniel Merken <dcm58@uw.edu>
  */
 public class BoggleBoard {
