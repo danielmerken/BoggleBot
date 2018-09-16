@@ -50,15 +50,7 @@ public class BoggleBot {
 			if (dictionary.containsWord(prefix)) {
 				board.addSolution(currPath);
 			}
-			List<Point> adjPoints = new ArrayList<Point>();
-			Point adjPoint = new Point(lastPoint.getX() + 1, lastPoint.getY());
-			if (validSpace(adjPoint)) adjPoints.add(adjPoint);
-			adjPoint = new Point(lastPoint.getX() - 1, lastPoint.getY());
-			if (validSpace(adjPoint)) adjPoints.add(adjPoint);
-			adjPoint = new Point(lastPoint.getX(), lastPoint.getY() + 1);
-			if (validSpace(adjPoint)) adjPoints.add(adjPoint);
-			adjPoint = new Point(lastPoint.getX(), lastPoint.getY() - 1);
-			if (validSpace(adjPoint)) adjPoints.add(adjPoint);
+			List<Point> adjPoints = getAdjPoints(Point p)
 			List<BoggleBotTask> threads = new ArrayList<BoggleBotTask>();
 			for (Point p : adjPoints) {
 				List<Point> nextPath = new ArrayList<Point>(currPath);
@@ -70,6 +62,19 @@ public class BoggleBot {
 				threads.get(i).fork();
 			}
 			threads.get(threads.size() - 1).compute();
+		}
+		
+		private List<Point> getAdjPoints(Point p) {
+			List<Point> adjPoints = new ArrayList<Point>();
+			Point adjPoint = new Point(lastPoint.getX() + 1, lastPoint.getY());
+			if (validSpace(adjPoint)) adjPoints.add(adjPoint);
+			adjPoint = new Point(lastPoint.getX() - 1, lastPoint.getY());
+			if (validSpace(adjPoint)) adjPoints.add(adjPoint);
+			adjPoint = new Point(lastPoint.getX(), lastPoint.getY() + 1);
+			if (validSpace(adjPoint)) adjPoints.add(adjPoint);
+			adjPoint = new Point(lastPoint.getX(), lastPoint.getY() - 1);
+			if (validSpace(adjPoint)) adjPoints.add(adjPoint);
+			return adjPoints;
 		}
 		
 		private boolean validSpace(Point p) {

@@ -47,19 +47,27 @@ public class BoggleBoard {
 	}
 	
 	public char get(int x, int y) {
-		if (x > getWidth() || x < 0 || y > getHeight() || y < 0) {
+		if () {
 			throw new IllegalArgumentException("Location specified is out of "
 					+ "range");
 		}
 		return board[x][y];
 	}
 	
-	public int getWidth() {
-		return board[0].length;
+//	public int getWidth() {
+//		return board[0].length;
+//	}
+//	
+//	public int getHeight() {
+//		return board.length;
+//	}
+	
+	public containsPoint(int x, int y) {
+		return x < getWidth() && x >= 0 && y < getHeight() && y >= 0;
 	}
 	
-	public int getHeight() {
-		return board.length;
+	public containsPoint(Point p) {
+		return p.getX() < getWidth() && p.getX() >= 0 && p.getY() < getHeight() && p.getY() >= 0;
 	}
 	
 	@Override
