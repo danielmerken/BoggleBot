@@ -1,7 +1,9 @@
 package main;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 /**
  * @author Daniel Merken <dcm58@uw.edu>
  */
@@ -68,23 +70,30 @@ public class BoggleBoard {
 	 * @param solution Ordered list of points representing a solution. The
 	 * 				   character corresponding to each point in the list 
 	 * 				   forms the word the solution represents.
-	 * @throws IllegalArgumentException if the solution is empty or if any 
-	 * 		   point in the solution does not fall within this board or if
-	 * 		   the provided list contains two points in a row that are not
+	 * @throws IllegalArgumentException if the solution is empty or if the
+	 *         solution contains the same point multiple times or if the
+	 * 		   provided list contains two points in a row that are not
 	 * 		   adjacent in this board
+	 * @throws IndexOutOfBoundsException if any point in the solution does not
+	 * 		   fall within this board
 	 */
-	public void addSolution(List<Point> solution) {
+	public synchronized void addSolution(List<Point> solution) {
 		if (solution.isEmpty()) {
 			throw new IllegalArgumentException("Invalid solution: Cannot have "
 					+ "a solution of length 0");
 		}
+		Set<Point> solutionSet = new HashSet<Point>(solution);
+		if (solutionSet.size() != solution.size()) {
+			throw new IllegalArgumentException("Invalid solution: Contains "
+					+ "a single point multiple times");
+		}
 		if (!containsPoint(solution.get(0))) {
-			throw new IllegalArgumentException("Invalid solution: Solution "
+			throw new IndexOutOfBoundsException("Invalid solution: Solution "
 					+ "path out of bounds");
 		}
 		for (int i = 1; i < solution.size(); i++) {
 			if (!containsPoint(solution.get(i))) {
-				throw new IllegalArgumentException("Invalid solution: Solution"
+				throw new IndexOutOfBoundsException("Invalid solution: Solution"
 						+ " path out of bounds");
 			}
 			if (!getAdjPoints(solution.get(i - 1)).contains(solution.get(i))) {
@@ -93,6 +102,36 @@ public class BoggleBoard {
 			}
 		}
 		solutions.add(solution);
+	}
+	
+	/**
+	 * Return a list of lists of points that represent every solution stored in 
+	 * this board. Each list of points represent a word, with each point 
+	 * corresponding to a character on the board that forms the word.
+	 * 
+	 * @return a list of lists of points representing all solutions stored in
+	 *         this board
+	 */
+	public List<List<Point>> getSolutionPoints() {
+		return solutions;
+	}
+	
+	/**
+	 * Returns every solution stored by this board as a list of strings
+	 * 
+	 * @return a list of words that represent every solution found in this 
+	 *         board
+	 */
+	public List<String> getSolutionWords() {
+		List<String> result = new ArrayList<String>();
+		for (List<Point> solutionPath : solutions) {
+			String currWord = "";
+			for (Point p : solutionPath) {
+				currWord += get(p);
+			}
+			result.add(currWord);
+		}
+		return result;
 	}
 	
 	/**
@@ -114,8 +153,8 @@ public class BoggleBoard {
 	 */
 	public char get(int x, int y) {
 		if (!containsPoint(x, y)) {
-			throw new IllegalArgumentException("Location specified is out of "
-					+ "range");
+			throw new IndexOutOfBoundsException("Location specified is out of "
+					+ "this board's range");
 		}
 		return board[x][y];
 	}
@@ -162,12 +201,11 @@ public class BoggleBoard {
 	}
 	
 	/**
-	 * Returns a list of points in all cardinal directions adjacent to the 
-	 * given point
+	 * Returns a list of points in all directions adjacent to the given point
 	 * 
 	 * @param p The point that will have it's adjacent neighbors returned
-	 * @return A list of points located in all cardinal directions adjacent
-	 *         to the given point 
+	 * @return A list of points located in all directions adjacent to the 
+	 *         given point 
 	 */
 	public List<Point> getAdjPoints(Point p) {
 		List<Point> adjPoints = new ArrayList<Point>();
@@ -178,6 +216,14 @@ public class BoggleBoard {
 		adjPoint = new Point(p.getX(), p.getY() + 1);
 		if (containsPoint(adjPoint)) adjPoints.add(adjPoint);
 		adjPoint = new Point(p.getX(), p.getY() - 1);
+		if (containsPoint(adjPoint)) adjPoints.add(adjPoint);
+		adjPoint = new Point(p.getX() + 1, p.getY() + 1);
+		if (containsPoint(adjPoint)) adjPoints.add(adjPoint);
+		adjPoint = new Point(p.getX() - 1, p.getY() - 1);
+		if (containsPoint(adjPoint)) adjPoints.add(adjPoint);
+		adjPoint = new Point(p.getX() - 1, p.getY() + 1);
+		if (containsPoint(adjPoint)) adjPoints.add(adjPoint);
+		adjPoint = new Point(p.getX() + 1, p.getY() - 1);
 		if (containsPoint(adjPoint)) adjPoints.add(adjPoint);
 		return adjPoints;
 	}
