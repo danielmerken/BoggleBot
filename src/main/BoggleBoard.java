@@ -1,10 +1,8 @@
 package main;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 /**
  * Class representing a Boggle board and its solutions. Boards can be randomly
  * generated or specified. Contains methods for adding and getting solutions,
@@ -72,7 +70,8 @@ public class BoggleBoard {
 	}
 	
 	/**
-	 * Stores a specified solution to this board
+	 * If the provided solution is not already stored in this board, stores the
+	 * solution in this board. Else, does nothing.
 	 * 
 	 * @param solution A BogglePath representing a valid word in
 	 * 		  this board
@@ -84,12 +83,15 @@ public class BoggleBoard {
 			throw new IllegalArgumentException("Provided solution is not a path"
 					+ " in this board");
 		}
-		solutions.add(solution);
+		if (!solutions.contains(solution)) {
+			solutions.add(solution);
+		}
 	}
 	
 	/**
 	 * Returns a list of BogglePaths that represent every solution stored in this
 	 * board.
+	 * 
 	 * @return A list of BogglePaths. Each BogglePath represents one solution 
 	 * 		   word found in this board
 	 */
