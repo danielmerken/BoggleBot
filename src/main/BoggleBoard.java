@@ -1,5 +1,6 @@
 package main;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -13,37 +14,48 @@ import java.util.Set;
  * @author Daniel Merken <dcm58@uw.edu>
  */
 public class BoggleBoard {
+	private static final Random RANDOM = new Random();
+	
 	/**
 	 * Stores characters that make up board
 	 */
-	char[][] board;
+	String[][] board;
 	/**
-	 * Stores solutions to this board. Solutions are represented as an ordered 
-	 * list of points corresponding to characters on this board that make up a
-	 * word 
+	 * Stores solutions to this board. Solutions are represented as a path
+	 * through the board
 	 */
-	List<List<Point>> solutions;
+	List<BogglePath> solutions;
 	
 	/**
 	 * Creates a board out of the given 2D array of characters
 	 * 
 	 * @param board Characters that will make up the given board
 	 * @throws IllegalArgumentException if supplied board has width or height 
-	 * 		   of 0 or if rows of supplied board are of inconsistent length
+	 * 		   of 0 or if rows of supplied board are of inconsistent length or
+	 * 		   if the board contains any strings that are not a single letter
+	 * 		   or Qu
 	 */
-	public BoggleBoard(char[][] board) {
+	public BoggleBoard(String[][] board) {
 		if (board.length == 0 || board[0].length == 0) {
 			throw new IllegalArgumentException("Board must have number of "
 					+ "rows and cols greater than 0");
 		}
-		for (char[] row : board) {
+		for (String[] row : board) {
 			if (row.length != board[0].length) {
 				throw new IllegalArgumentException(
 						"Rows of provided board must be of consistent length");
 			}
+			for (String letter : row) {
+				if (!(letter.equals("Qu") || (letter.length() == 1 && 
+						!letter.equals("Q") && 
+						Character.isUpperCase(letter.charAt(0))))) {
+					throw new IllegalArgumentException("Board can only contain "
+							+ "capital letters (except for \"Q\") and \"Qu\"");
+				}
+			}
 		}
 		this.board = board;
-		solutions = new ArrayList<List<Point>>();
+		solutions = Collections.synchronizedList(new ArrayList<BogglePath>());
 	}
 	
 	/**
@@ -55,58 +67,34 @@ public class BoggleBoard {
 	 * @throws IllegalArgumentException if width or height are less than 1
 	 */
 	public BoggleBoard(int width, int height) {
-		if (height < 1 || width < 1) {
-			throw new IllegalArgumentException("Width and height must be "
-					+ "greater than 0");
-		}
-		board = new char[height][width];
-		Random rand = new Random();
-		for (int i = 0; i < height; i++) {
-			for (int j = 0; j < width; j++) {
-				board[i][j] = (char) ((int) 'a' + rand.nextInt(26));
-			}
-		}
-		solutions = new ArrayList<List<Point>>();
+		board = generateRandomBoard(width, height);
+		solutions = Collections.synchronizedList(new ArrayList<BogglePath>());
 	}
 	
 	/**
 	 * Stores a specified solution to this board
 	 * 
-	 * @param solution Ordered list of points representing a solution. The
-	 * 				   character corresponding to each point in the list 
-	 * 				   forms the word the solution represents.
-	 * @throws IllegalArgumentException if the solution is empty or if the
-	 *         solution contains the same point multiple times or if the
-	 * 		   provided list contains two points in a row that are not
-	 * 		   adjacent in this board
-	 * @throws IndexOutOfBoundsException if any point in the solution does not
-	 * 		   fall within this board
+	 * @param solution A BogglePath representing a valid word in
+	 * 		  this board
+	 * @throws IllegalArgumentException If the provided BogglePath is not a
+	 *         path of this board
 	 */
-	public synchronized void addSolution(List<Point> solution) {
-		if (solution.isEmpty()) {
-			throw new IllegalArgumentException("Invalid solution: Cannot have "
-					+ "a solution of length 0");
-		}
-		Set<Point> solutionSet = new HashSet<Point>(solution);
-		if (solutionSet.size() != solution.size()) {
-			throw new IllegalArgumentException("Invalid solution: Contains "
-					+ "a single point multiple times");
-		}
-		if (!containsPoint(solution.get(0))) {
-			throw new IndexOutOfBoundsException("Invalid solution: Solution "
-					+ "path out of bounds");
-		}
-		for (int i = 1; i < solution.size(); i++) {
-			if (!containsPoint(solution.get(i))) {
-				throw new IndexOutOfBoundsException("Invalid solution: Solution"
-						+ " path out of bounds");
-			}
-			if (!getAdjPoints(solution.get(i - 1)).contains(solution.get(i))) {
-				throw new IllegalArgumentException("Invalid solution: Solution"
-						+ " path jumps between non-adjacent spaces");
-			}
+	public synchronized void addSolution(BogglePath solution) {
+		if (this != solution.getBoard()) {
+			throw new IllegalArgumentException("Provided solution is not a path"
+					+ " in this board");
 		}
 		solutions.add(solution);
+	}
+	
+	/**
+	 * Returns a list of BogglePaths that represent every solution stored in this
+	 * board.
+	 * @return A list of BogglePaths. Each BogglePath represents one solution 
+	 * 		   word found in this board
+	 */
+	public List<BogglePath> getSolutions() {
+		return new ArrayList<BogglePath>(solutions);
 	}
 	
 	/**
@@ -118,7 +106,11 @@ public class BoggleBoard {
 	 *         this board
 	 */
 	public List<List<Point>> getSolutionPoints() {
-		return solutions;
+		List<List<Point>> result = new ArrayList<List<Point>>();
+		for (BogglePath solutionPath : solutions) {
+			result.add(solutionPath.getPoints());
+		}
+		return result;
 	}
 	
 	/**
@@ -127,14 +119,25 @@ public class BoggleBoard {
 	 * @return a list of words that represent every solution found in this 
 	 *         board
 	 */
-	public List<String> getSolutionWords() {
+	public synchronized List<String> getSolutionWords() {
 		List<String> result = new ArrayList<String>();
-		for (List<Point> solutionPath : solutions) {
-			String currWord = "";
-			for (Point p : solutionPath) {
-				currWord += get(p);
-			}
-			result.add(currWord);
+		for (BogglePath solutionPath : solutions) {
+			result.add(solutionPath.getWord());
+		}
+		return result;
+	}
+	
+	/**
+	 * Takes a path of points and returns the word that results from following
+	 * that path in order on this board.
+	 * 
+	 * @param path A series of points representing a path
+	 * @return The word corresponding to the path on this board
+	 */
+	public String getWord(List<Point> path) {
+		String result = "";
+		for (Point p : path) {
+			result += get(p);
 		}
 		return result;
 	}
@@ -145,7 +148,7 @@ public class BoggleBoard {
 	 * @param p Location of character to be returned
 	 * @return The character at the specified point
 	 */
-	public char get(Point p) {
+	public String get(Point p) {
 		return get(p.getX(), p.getY());
 	}
 	
@@ -156,12 +159,12 @@ public class BoggleBoard {
 	 * @param y Y-coordinate of point to be returned
 	 * @return The character at the specified coordinates
 	 */
-	public char get(int x, int y) {
+	public String get(int x, int y) {
 		if (!containsPoint(x, y)) {
 			throw new IndexOutOfBoundsException("Location specified is out of "
 					+ "this board's range");
 		}
-		return board[x][y];
+		return board[y][x];
 	}
 	
 	/**
@@ -236,11 +239,51 @@ public class BoggleBoard {
 	@Override
 	public String toString() {
 		String result = "";
-		for (char[] row : board) {
-			for (char c : row) {
-				result += c + " ";
+		for (String[] row : board) {
+			for (String letter : row) {
+				result += letter;
 			}
 			result += '\n';
+		}
+		return result;
+	}
+	
+	/**
+	 * Generates a 2d array filled with random upper case letters, representing
+	 * a Boggle board of a specified width and height. "Q"s will be replaced  
+	 * with "Qu".
+	 * @param width Width of the 2d array to be generated
+	 * @param height Height of the 2d array to be generated
+	 * @return A 2d array of strings filled with random upper case letters
+	 * 		   ("Q" will be replaced with "Qu")
+	 */
+	public static String[][] generateRandomBoard(int width, int height) {
+		if (height < 1 || width < 1) {
+			throw new IllegalArgumentException("Width and height must be "
+					+ "greater than 0");
+		}
+		String[][] board = new String[height][width];
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				board[i][j] = generateRandomBoggleLetter();
+			}
+		}
+		return board;
+	}
+	
+	/**
+	 * Generates a 2d array filled with random upper case letters, representing
+	 * a Boggle board of a specified width and height. "Q"s will be replaced  
+	 * with "Qu".
+	 * @param width Width of the 2d array to be generated
+	 * @param height Height of the 2d array to be generated
+	 * @return A 2d array of strings filled with random upper case letters
+	 * 		   ("Q" will be replaced with "Qu")
+	 */
+	public static String generateRandomBoggleLetter() {
+		String result = "" + (char) ((int) 'A' + RANDOM.nextInt(26));
+		if (result.equals("Q")) {
+			result = "Qu";
 		}
 		return result;
 	}

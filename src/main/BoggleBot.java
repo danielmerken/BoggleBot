@@ -23,10 +23,8 @@ public class BoggleBot {
 			for (int j = 0; j < board.getHeight(); j++) {
 				Point p = new Point(i, j);
 				if (dictionary.containsPrefix("" + board.get(p))) {
-					List<Point> path = new ArrayList<Point>();
-					path.add(p);
-					POOL.invoke(new BoggleBotTask(dictionary, board, path, 
-							"" + board.get(p)));
+					BogglePath path = new BogglePath(board, p);
+					POOL.invoke(new BoggleBotTask(dictionary, board, path));
 				}
 			}
 		}
@@ -36,32 +34,29 @@ public class BoggleBot {
 		
 		private Trie dictionary;
 		private BoggleBoard board;
-		private List<Point> currPath;
-		private String prefix;
+		private BogglePath currPath;
 		
 		public BoggleBotTask(Trie dictionary, BoggleBoard board, 
-				List<Point> currPath, String prefix) {
+				BogglePath currPath) {
 			this.dictionary = dictionary;
 			this.board = board;
 			this.currPath = currPath;
-			this.prefix = prefix;
 		}
 		
 		@Override
 		protected void compute() {
-			Point lastPoint = currPath.get(currPath.size() - 1);
-			if (dictionary.containsWord(prefix)) {
+			if (dictionary.containsWord(currPath.getWord())) {
 				board.addSolution(currPath);
 			}
-			List<Point> adjPoints = board.getAdjPoints(lastPoint);
+			List<Point> adjPoints = board.getAdjPoints(currPath.getLastPoint());
 			List<BoggleBotTask> threads = new ArrayList<BoggleBotTask>();
 			for (Point p : adjPoints) {
-				if (!currPath.contains(p) && 
-						dictionary.containsPrefix(prefix + board.get(p))) {
-					List<Point> nextPath = new ArrayList<Point>(currPath);
-					nextPath.add(p);
-					threads.add(new BoggleBotTask(dictionary, board, nextPath,
-							prefix + board.get(p)));
+				if (!currPath.containsPoint(p) && 
+						dictionary.containsPrefix(
+								currPath.getWord() + board.get(p))) {
+					BogglePath nextPath = new BogglePath(currPath);
+					nextPath.addPoint(p);
+					threads.add(new BoggleBotTask(dictionary, board, nextPath));
 				}
 			}
 			if (!threads.isEmpty()) {
