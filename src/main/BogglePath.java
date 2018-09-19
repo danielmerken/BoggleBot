@@ -11,7 +11,7 @@ import java.util.List;
  * adjacent to the next and previous point in the list.
  * @author Daniel Merken <dcm58@uw.edu>
  */
-public class BogglePath {
+public class BogglePath {	
 	/**
 	 * Contains all points of this path
 	 */

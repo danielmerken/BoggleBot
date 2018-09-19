@@ -241,7 +241,7 @@ public class BoggleBoard {
 		String result = "";
 		for (String[] row : board) {
 			for (String letter : row) {
-				result += letter;
+				result += letter + " ";
 			}
 			result += '\n';
 		}
