@@ -9,6 +9,7 @@ import java.util.List;
  * BoggleBoard, and the score value of the word. Each space may only be 
  * traversed once by a given BogglePath. A given point in the list must be
  * adjacent to the next and previous point in the list.
+ * 
  * @author Daniel Merken <dcm58@uw.edu>
  */
 public class BogglePath {	
@@ -32,6 +33,7 @@ public class BogglePath {
 	/**
 	 * Creates a new empty path in the given board with the given starting 
 	 * point
+	 * 
 	 * @param board The board this path will be contained in
 	 * @param start The starting point of this path
 	 */
@@ -45,6 +47,7 @@ public class BogglePath {
 	
 	/**
 	 * Constructs a copy of the given BogglePath
+	 * 
 	 * @param path The path to construct a copy of
 	 */
 	public BogglePath(BogglePath path) {
@@ -56,6 +59,7 @@ public class BogglePath {
 	
 	/**
 	 * Adds the given point to the end of this path
+	 * 
 	 * @param p Point to be added to the end of this path
 	 */
 	public void addPoint(Point p) {
@@ -69,11 +73,22 @@ public class BogglePath {
 		}
 		points.add(p);
 		word += board.get(p).toLowerCase();
-		score++;
+		if (word.length() >= 8) {
+			score = 11;
+		} else if (word.length() == 7) {
+			score = 5;
+		} else if (word.length() == 6) {
+			score = 3;
+		} else if (word.length() == 5) {
+			score = 2;
+		} else if (word.length() >= 3) {
+			score = 1;
+		}
 	}
 	
 	/**
 	 * Returns the list of points this path contains
+	 * 
 	 * @return A list of points this path contains in the same order as the
 	 * 		   path
 	 */
@@ -83,6 +98,7 @@ public class BogglePath {
 	
 	/**
 	 * Returns the word that this path corresponds to in the Boggle board
+	 * 
 	 * @return The word that this path corresponds to in the Boggle board
 	 */
 	public String getWord() {
@@ -91,6 +107,7 @@ public class BogglePath {
 	
 	/**
 	 * Returns the score that this path's word corresponds to
+	 * 
 	 * @return returns the score that this path's word corresponds to
 	 */
 	public int getScore() {
@@ -99,6 +116,7 @@ public class BogglePath {
 	
 	/**
 	 * Returns the Boggle board this path is contained in
+	 * 
 	 * @return the Boggle board this path is contained in
 	 */
 	public BoggleBoard getBoard() {
@@ -107,6 +125,7 @@ public class BogglePath {
 	
 	/**
 	 * Returns the last point in this path
+	 * 
 	 * @return the last word in this path
 	 */
 	public Point getLastPoint() {
@@ -115,6 +134,7 @@ public class BogglePath {
 	
 	/**
 	 * Returns true iff the a given point is contained in this path
+	 * 
 	 * @param The point to be checked whether it is contained in this path
 	 * @return True if the given point is contained in this path, else returns
 	 * false
@@ -126,5 +146,14 @@ public class BogglePath {
 	@Override
 	public String toString() {
 		return word + " (" + score + ")";
+	}
+	
+	@Override
+	public boolean equals(Object o)  {
+		if (!(o instanceof BogglePath)) {
+			return false;
+		}
+		BogglePath otherPath = (BogglePath) o;
+		return board == otherPath.board && points.equals(otherPath.points);
 	}
 }
