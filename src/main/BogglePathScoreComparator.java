@@ -2,6 +2,13 @@ package main;
 
 import java.util.Comparator;
 
+/**
+ * Comparator for BogglePaths that considers BogglePaths with lower scores as
+ * lesser. If two paths have equal score, consider paths whose words occur
+ * earlier in the alphabet as lesser.
+ * 
+ * @author Daniel Merken <dcm58@uw.edu>
+ */
 public class BogglePathScoreComparator implements Comparator<BogglePath> {
 
 	@Override

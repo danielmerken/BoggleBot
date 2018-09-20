@@ -2,6 +2,12 @@ package main;
 
 import java.util.Comparator;
 
+/**
+ * Comparator for BogglePaths that consider paths whose words occur earlier in 
+ * the alphabet as lesser.
+ * 
+ * @author Daniel Merken <dcm58@uw.edu>
+ */
 public class BogglePathWordComparator implements Comparator<BogglePath> {
 
 	@Override
