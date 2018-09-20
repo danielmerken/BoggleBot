@@ -116,7 +116,6 @@ public class BoggleBotUI extends JApplet implements ActionListener, ListSelectio
 		dashboardPanel.add(clearButton);
 		dashboardPanel.add(randomButton);
 		dashboardPanel.add(solveButton);
-		dashboardPanel.setBackground(Color.RED);
 		
 		widthBox.addActionListener(this);
 		heightBox.addActionListener(this);
@@ -125,7 +124,6 @@ public class BoggleBotUI extends JApplet implements ActionListener, ListSelectio
 		solveButton.addActionListener(this);
 
 		boardContainer = new JPanel();
-		boardContainer.setBackground(Color.GREEN);
 		
 		JPanel solutionsPanel = new JPanel();
 		solutionsPanel.setLayout(new GridBagLayout());
