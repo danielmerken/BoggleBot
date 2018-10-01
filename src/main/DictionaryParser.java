@@ -68,7 +68,7 @@ public class DictionaryParser {
 		try {
 			reader = new BufferedReader(new InputStreamReader(
 					DictionaryParser.class.getResourceAsStream(
-							"/main/resources/dictionary.txt")));
+							"/resources/dictionary.txt")));
 			// Add one word at a time
 			String inputLine;
 			while ((inputLine = reader.readLine()) != null) {
